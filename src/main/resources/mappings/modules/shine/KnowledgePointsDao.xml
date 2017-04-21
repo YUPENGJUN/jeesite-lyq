@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.thinkgem.jeesite.modules.shine.dao.KnowledgePointsDao">
+    
+	<sql id="knowledgePointsColumns">
+		a.id AS "id",
+		a.title AS "title",
+		a.url AS "url",
+		a.annex_url AS "annexUrl",
+		a.knowledge_content AS "knowledgeContent",
+		a.status AS "status",
+		a.column1 AS "column1",
+		a.column2 AS "column2",
+		a.create_date AS "createDate",
+		a.create_by AS "createBy.id",
+		a.update_date AS "updateDate",
+		a.update_by AS "updateBy.id",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="knowledgePointsJoins">
+	</sql>
+    
+	<select id="get" resultType="KnowledgePoints">
+		SELECT 
+			<include refid="knowledgePointsColumns"/>
+		FROM knowledge_points a
+		<include refid="knowledgePointsJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="KnowledgePoints">
+		SELECT 
+			<include refid="knowledgePointsColumns"/>
+		FROM knowledge_points a
+		<include refid="knowledgePointsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="title != null and title != ''">
+				AND a.title LIKE 
+					<if test="dbName == 'oracle'">'%'||#{title}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{title}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{title},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="KnowledgePoints">
+		SELECT 
+			<include refid="knowledgePointsColumns"/>
+		FROM knowledge_points a
+		<include refid="knowledgePointsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO knowledge_points(
+			id,
+			title,
+			url,
+			annex_url,
+			knowledge_content,
+			status,
+			column1,
+			column2,
+			create_date,
+			create_by,
+			update_date,
+			update_by,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{title},
+			#{url},
+			#{annexUrl},
+			#{knowledgeContent},
+			#{status},
+			#{column1},
+			#{column2},
+			#{createDate},
+			#{createBy.id},
+			#{updateDate},
+			#{updateBy.id},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE knowledge_points SET 	
+			title = #{title},
+			url = #{url},
+			annex_url = #{annexUrl},
+			knowledge_content = #{knowledgeContent},
+			status = #{status},
+			column1 = #{column1},
+			column2 = #{column2},
+			update_date = #{updateDate},
+			update_by = #{updateBy.id},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="delete">
+		UPDATE knowledge_points SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>
